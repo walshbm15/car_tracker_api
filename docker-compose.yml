@@ -1,0 +1,15 @@
+version: '2.1'
+
+services:
+  # Postgres database
+  postgres:
+    image: postgres:11.5-alpine
+    ports: ["${PG_EXTERNAL_PORT:-5432}:5432"]
+    restart: always
+    volumes:
+      - ./sql/extensions.sql:/docker-entrypoint-initdb.d/init.sql
+    environment:
+      POSTGRES_DB: "${PG_DB_NAME:-dev_db}"
+
+volumes:
+  pgdata:
