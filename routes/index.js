@@ -1,9 +1,9 @@
 var express = require('express');
 var router  = express()
 
-var userRoutes = require('./user');
+var authRoutes = require('./auth');
 
 // Import routes to base route 'api'
-router.use('/api', userRoutes);
+router.use('/auth', authRoutes);
 
 module.exports = router;

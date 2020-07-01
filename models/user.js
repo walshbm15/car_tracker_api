@@ -1,5 +1,12 @@
 'use strict';
 
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken')
+var envConfigs =  require('../database/config/config');
+
+var env = process.env.NODE_ENV || 'development';
+var config = envConfigs[env];
+
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define('User', {
     id: {
@@ -25,8 +32,22 @@ module.exports = (sequelize, DataTypes) => {
   };
 
   // Instance methods
-  User.prototype.registerUser = function () {
-    this.save()
+  User.prototype.registerUser = async function () {
+    const hash = await bcrypt.hash(this.password, 10)
+    this.password = hash;
+    await this.save()
   }
+
+  User.prototype.authenticateUser = async function (password) {
+    const loggedIn = bcrypt.compare(password, this.password);
+    if (loggedIn) {
+      const accessToken = await jwt.sign(this.get(), config.jwtTokenSecret, { expiresIn: '1h'})
+      const refreshToken = await jwt.sign(this.get(), config.jwtRefreshTokenSecret, { expiresIn: '90 days'})
+      return {'accessToken': accessToken, 'refreshToken': refreshToken}
+    } else {
+      return false
+    }
+  }
+
   return User;
 };
