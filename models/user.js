@@ -38,7 +38,7 @@ module.exports = (sequelize, DataTypes) => {
     await this.save()
   }
 
-  User.prototype.authenticateUser = async function (password) {
+  User.prototype.loginUser = async function (password) {
     const loggedIn = bcrypt.compare(password, this.password);
     if (loggedIn) {
       const accessToken = await jwt.sign(this.get(), config.jwtTokenSecret, { expiresIn: '1h'})
@@ -47,6 +47,14 @@ module.exports = (sequelize, DataTypes) => {
     } else {
       return false
     }
+  }
+
+  User.prototype.authenticateUserToken = async (token) => {
+    return await jwt.verify(token, config.jwtTokenSecret);
+  }
+
+  User.prototype.authenticateUserRefreshToken = async (refreshToken) => {
+    return await jwt.verify(refreshToken, config.jwtRefreshTokenSecret);
   }
 
   return User;

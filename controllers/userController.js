@@ -19,20 +19,23 @@ exports.loginUser = asyncHandler(async function(req, res) {
   username = req.body.username
   password = req.body.password
   const u = await user.findOne({ where: { username: username } });
-  const tokens = await u.authenticateUser(password)
+  const tokens = await u.loginUser(password)
 
   if (tokens) {
     const response = {
-      "status": "Logged in",
+      "msg": "Logged in",
       "access_token": tokens.accessToken,
       "refresh_token": tokens.refreshToken,
     }
     res.status(200).json(response);
   } else {
-    res.send('Not logged in')
+    const response = {
+      "msg": "Incorrect username or password"
+    }
+    res.status(401).json(response)
   }
 });
 
-exports.refreshToken = function(req, res) {
+exports.refreshToken = asyncHandler(async function(req, res) {
   res.send('NOT IMPLEMENTED: Book detail: ' + req.params.id);
-};
+});
